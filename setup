@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+
+curl -sS https://webi.sh/gh | sh
+source ~/.config/envman/PATH.env
+
+# export variables from .env
+set -o allexport; source .env; set +o allexport
+
+
+rsa_deploy_workflow_file_name="~/.ssh/id_rsa_""$PROJECT_NAME"_"$ENVIRONMENT""_deploy_workflow"
+ed_deploy_key_github_file_name="~/.ssh/id_ed25519_"$PROJECT_NAME"_"$ENVIRONMENT"_github_deploy_key"
+env_secrets_file_name='temp/.env.secrets'
+
+rsa_deploy_key_passphrase=$(openssl rand -base64 32);
+
+
+# ----------------------------------------------#
+#                                               #
+# Generate SSH Key to Github Workflow deploy    #
+#                                               #
+# ----------------------------------------------#
+ssh-keygen -t rsa -b 4096 -C "Github Workflow Key $PROJECT_NAME $ENVIRONMENT" -f "$rsa_deploy_workflow_file_name" -N "$rsa_deploy_key_passphrase"
+
+# ----------------------------------------------#
+#                                               #
+# Generate SSH Key to Github Deploy Key         #
+#                                               #
+# ----------------------------------------------#
+ssh-keygen -t ed25519 -C "Github Deploy Key $PROJECT_NAME $ENVIRONMENT" -f "$ed_deploy_key_github_file_name" -N ""
+
+# ----------------------------------------------#
+#                                               #
+# Authorized SSH Keys                           #
+#                                               #
+# ----------------------------------------------#
+echo $(cat $rsa_deploy_workflow_file_name".pub") >> ~/.ssh/authorized_keys
+echo $(cat $ed_deploy_key_github_file_name".pub") >> ~/.ssh/authorized_keys
+
+
+read -s -p "Informe o Token Gerenciador de Screts: " github_secrets_manager
+
+# ----------------------------------------------#
+#                                               #
+# Write screts in .env.secrets                  #
+#                                               #
+# ----------------------------------------------#
+echo "SERVER_USER=""\"$(whoami)\"" > $env_secrets_file_name
+echo "SERVER_HOST=""\"$(curl -4 ifconfig.me)\"" >> $env_secrets_file_name
+echo "$ENVIRONMENT""_SSH_PASSPHRASE=""\"$rsa_deploy_key_passphrase\"" >> $env_secrets_file_name
+echo "$ENVIRONMENT""_SSH_KEY=""\"$(cat $rsa_deploy_workflow_file_name)\"" >> $env_secrets_file_name
+echo "SSH_PORT=\"22\"" >> $env_secrets_file_name # HARD CODE SSH PORT SET
+
+# ----------------------------------------------#
+#                                               #
+# Login in Github CLI                           #
+#                                               #
+# ----------------------------------------------#
+gh auth login --with-token < $github_secrets_manager
+
+
+# ----------------------------------------------#
+#                                               #
+# Set secrets in Github secrets                 #
+#                                               #
+# ----------------------------------------------#
+gh secret set -f $env_secrets_file_name
+
+# ----------------------------------------------#
+#                                               #
+# Set SSH Key to Github Deploy Key              #
+#                                               #
+# ----------------------------------------------#
