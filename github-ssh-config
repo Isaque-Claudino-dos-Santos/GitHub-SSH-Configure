@@ -70,3 +70,4 @@ gh secret set -f $env_secrets_file_name
 # Set SSH Key to Github Deploy Key              #
 #                                               #
 # ----------------------------------------------#
+gh repo deploy-key add $ed_deploy_key_github_file_name --title "deploy key"
