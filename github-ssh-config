@@ -11,6 +11,10 @@ rsa_deploy_workflow_file_name="~/.ssh/id_rsa_""$PROJECT_NAME"_"$ENVIRONMENT""_de
 ed_deploy_key_github_file_name="~/.ssh/id_ed25519_"$PROJECT_NAME"_"$ENVIRONMENT"_github_deploy_key"
 env_secrets_file_name=".env.secrets"
 
+touch $rsa_deploy_workflow_file_name
+touch $ed_deploy_key_github_file_name
+touch $env_secrets_file_name
+
 rsa_deploy_key_passphrase=$(openssl rand -base64 32);
 
 
