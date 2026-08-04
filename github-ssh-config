@@ -149,23 +149,6 @@ chmod 600 "$SSH_DIR/config"
 
 
 # ----------------------------------------------#
-# Clone repository                              #
-# ----------------------------------------------#
-
-echo ""
-echo "=============================================="
-echo "Clonando repository"
-echo "=============================================="
-
-if [ -d "$PROJECT_WORKDIR/.git" ]; then
-    echo "Repository já existe em:"
-    echo "$PROJECT_WORKDIR"
-else
-    git clone "$GITHUB_HOST:$GITHUB_REPO" "$PROJECT_WORKDIR"
-fi
-
-
-# ----------------------------------------------#
 # GitHub Secrets Manager Token                   #
 # ----------------------------------------------#
 
@@ -208,6 +191,17 @@ echo "Login no GitHub CLI"
 echo "=============================================="
 
 printf '%s\n' "$github_secrets_manager" | gh auth login --with-token
+
+# ----------------------------------------------#
+# Clone repository                              #
+# ----------------------------------------------#
+
+echo ""
+echo "=============================================="
+echo "Clonando repository"
+echo "=============================================="
+
+gh repo clone "$GITHUB_HOST:$GITHUB_REPO" "$PROJECT_WORKDIR"
 
 
 # ----------------------------------------------#
