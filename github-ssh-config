@@ -45,7 +45,6 @@ required_vars=(
     PROJECT_NAME
     ENVIRONMENT
     GITHUB_HOST
-    GITHUB_REPO
     PROJECT_WORKDIR
 )
 
@@ -224,10 +223,6 @@ echo "$rsa_deploy_workflow_file_name"
 echo ""
 echo "GitHub Deploy Key:"
 cat "$ed_deploy_key_github_file_name"
-
-echo ""
-echo "Repository:"
-echo "$GITHUB_REPO"
 
 echo ""
 echo "Project:"
